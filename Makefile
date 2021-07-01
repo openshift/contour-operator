@@ -77,7 +77,6 @@ check: test lint-golint lint-codespell
 # Run tests
 test: generate fmt vet manifests
 	go test \
-	  -mod=readonly \
 	  -covermode=atomic \
 	  -coverprofile coverage.out \
 	  ./...
@@ -92,9 +91,12 @@ lint-codespell:
 	@echo Running Codespell ...
 	@./hack/codespell.sh --skip $(CODESPELL_SKIP) --ignore-words .codespell.ignorewords --check-filenames --check-hidden -q2
 
+# Build manager binary, no additional checks or code generation
+build-operator:
+	go build -o bin/contour-operator cmd/contour-operator.go
+
 # Build manager binary
-manager: generate fmt vet
-	go build -mod=readonly -o bin/contour-operator cmd/contour-operator.go
+build: build-operator generate fmt vet
 
 # Run against the configured Kubernetes cluster in ~/.kube/config
 run: generate fmt vet manifests install
@@ -205,4 +207,4 @@ release:
 test-e2e: ## Runs e2e tests.
 .PHONY: test-e2e
 test-e2e: deploy
-	go test -mod=readonly -timeout 20m -count 1 -v -tags e2e -run "$(TEST)" ./test/e2e
+	go test -timeout 20m -count 1 -v -tags e2e -run "$(TEST)" ./test/e2e
