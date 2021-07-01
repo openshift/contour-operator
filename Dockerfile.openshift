@@ -1,0 +1,12 @@
+FROM registry.ci.openshift.org/ocp/builder:rhel-8-golang-1.16-openshift-4.9 AS builder
+WORKDIR /contour-operator
+COPY . .
+RUN make build-operator
+
+FROM registry.ci.openshift.org/ocp/4.9:base
+COPY --from=builder /contour-operator/bin/contour-operator /usr/bin/
+ENTRYPOINT ["/usr/bin/contour-operator"]
+LABEL io.openshift.release.operator="true"
+LABEL io.k8s.display-name="OpenShift Contour Operator" \
+      io.k8s.description="Provides a method for packaging, deploying, and managing Contour." \
+      maintainer="<aos-network-edge-staff@redhat.com>"
