@@ -1,0 +1,21 @@
+approvers:
+  - knobunc
+  - Miciah
+  - frobware
+  - sgreene570
+  - candita
+  - rfredette
+  - alebedev87
+  - miheer
+  - lmzuccarelli
+reviewers:
+  - knobunc
+  - Miciah
+  - frobware
+  - sgreene570
+  - candita
+  - rfredette
+  - alebedev87
+  - miheer
+  - lmzuccarelli
+component: Routing
