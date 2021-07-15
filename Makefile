@@ -9,6 +9,10 @@ NEW_VERSION ?= $(OLD_VERSION)
 # Used as a go test argument for running e2e tests.
 TEST ?= .*
 
+CONTAINER_ENGINE ?= docker
+
+AUTH ?= 
+
 # Image URL to use all building/pushing image targets
 IMAGE ?= docker.io/projectcontour/contour-operator
 
@@ -77,6 +81,7 @@ check: test lint-golint lint-codespell
 # Run tests
 test: generate fmt vet manifests
 	go test \
+	  -mod=readonly \
 	  -covermode=atomic \
 	  -coverprofile coverage.out \
 	  ./...
@@ -168,7 +173,7 @@ generate:
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 multiarch-build-push: ## Build and push a multi-arch contour-operator container image to the Docker registry
-	docker buildx build \
+	$(CONTAINER_ENGINE) buildx build \
 		--platform $(IMAGE_PLATFORMS) \
 		--build-arg "BUILD_VERSION=$(BUILD_VERSION)" \
 		--build-arg "BUILD_BRANCH=$(BUILD_BRANCH)" \
@@ -180,7 +185,7 @@ multiarch-build-push: ## Build and push a multi-arch contour-operator container 
 
 container: ## Build the contour-operator container image
 container: test
-	docker build \
+	$(CONTAINER_ENGINE) build \
 		--build-arg "BUILD_VERSION=$(BUILD_VERSION)" \
 		--build-arg "BUILD_BRANCH=$(BUILD_BRANCH)" \
 		--build-arg "BUILD_SHA=$(BUILD_SHA)" \
@@ -190,10 +195,10 @@ container: test
 
 push: ## Push the contour-operator container image to the Docker registry
 push: container
-	docker push $(IMAGE):$(VERSION)
+	$(CONTAINER_ENGINE) push $(IMAGE):$(VERSION)
 ifeq ($(TAG_LATEST), true)
-	docker tag $(IMAGE):$(VERSION) $(IMAGE):latest
-	docker push $(IMAGE):latest
+	$(CONTAINER_ENGINE) tag $(IMAGE):$(VERSION) $(IMAGE):latest
+	$(CONTAINER_ENGINE) push $(IMAGE):latest
 endif
 
 local-cluster: # Create a local kind cluster
@@ -208,3 +213,21 @@ test-e2e: ## Runs e2e tests.
 .PHONY: test-e2e
 test-e2e: deploy
 	go test -timeout 20m -count 1 -v -tags e2e -run "$(TEST)" ./test/e2e
+
+# OLM
+.PHONY: bundle
+bundle: manifests
+	kustomize build config/default | operator-sdk generate bundle -q
+	operator-sdk bundle validate ./bundle
+
+.PHONY: bundle-build
+bundle-build:
+	$(CONTAINER_ENGINE) build -t $(IMAGE)-bundle:$(VERSION) -f bundle.Dockerfile
+
+.PHONY: bundle-push
+bundle-push:
+	$(CONTAINER_ENGINE) push $(IMAGE)-bundle:$(VERSION)
+  
+.PHONY: bundle-push-dev
+bundle-push-dev:
+	$(CONTAINER_ENGINE) push $(AUTH) $(IMAGE)-bundle:$(VERSION)
