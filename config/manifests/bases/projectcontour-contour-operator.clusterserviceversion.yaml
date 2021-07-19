@@ -1,0 +1,51 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+  name: projectcontour-contour-operator.v0.0.1
+  namespace: contour-operator
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Contour is the Schema for the contours API.
+      displayName: Contour
+      kind: Contour
+      name: contours.operator.projectcontour.io
+      version: v1alpha1
+  description: Contour Operator provides a method for packaging, deploying, and managing
+    Contour
+  displayName: contour-operator
+  icon:
+  - base64data: ""
+    mediatype: ""
+  install:
+    spec:
+      deployments: null
+    strategy: ""
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - contour
+  - contour-operator
+  - projectcontour
+  links:
+  - name: Projectcontour Contour Operator
+    url: https://projectcontour-contour-operator.domain
+  maintainers:
+  - email: luzuccar@redhat.com
+    name: name
+  maturity: alpha
+  provider:
+    name: contour-operator
+    url: https://projectcontour.io/
+  version: 0.0.0

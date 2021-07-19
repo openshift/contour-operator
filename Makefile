@@ -13,6 +13,8 @@ CONTAINER_ENGINE ?= docker
 
 AUTH ?= 
 
+SEMVER=1.16.0
+
 # Image URL to use all building/pushing image targets
 IMAGE ?= docker.io/projectcontour/contour-operator
 
@@ -81,7 +83,6 @@ check: test lint-golint lint-codespell
 # Run tests
 test: generate fmt vet manifests
 	go test \
-	  -mod=readonly \
 	  -covermode=atomic \
 	  -coverprofile coverage.out \
 	  ./...
@@ -217,7 +218,8 @@ test-e2e: deploy
 # OLM
 .PHONY: bundle
 bundle: manifests
-	kustomize build config/default | operator-sdk generate bundle -q
+	operator-sdk generate kustomize manifests -q
+	kustomize build config/manifests | operator-sdk generate bundle -q --overwrite --version $(SEMVER)
 	operator-sdk bundle validate ./bundle
 
 .PHONY: bundle-build
