@@ -67,14 +67,14 @@ TAG_LATEST ?= false
 
 ifeq ($(TAG_LATEST), true)
 	IMAGE_TAGS = \
-		--tag $(IMAGE):$(VERSION) \
-		--tag $(IMAGE):latest
+		--tag "$(IMAGE):$(VERSION)" \
+		--tag "$(IMAGE)":latest
 else
 	IMAGE_TAGS = \
-		--tag $(IMAGE):$(VERSION)
+		--tag "$(IMAGE):$(VERSION)"
 endif
 
-all: manager
+all: generate fmt vet manifests build-operator
 
 # Run tests & validate against linters
 .PHONY: check
@@ -82,10 +82,7 @@ check: test lint-golint lint-codespell
 
 # Run tests
 test: generate fmt vet manifests
-	go test \
-	  -covermode=atomic \
-	  -coverprofile coverage.out \
-	  ./...
+	go test -covermode=atomic -coverprofile coverage.out $(shell go list ./... | grep -v internal/operator)
 
 lint-golint:
 	@echo Running Go linter ...
@@ -95,7 +92,7 @@ lint-golint:
 lint-codespell: CODESPELL_SKIP := $(shell cat .codespell.skip | tr \\n ',')
 lint-codespell:
 	@echo Running Codespell ...
-	@./hack/codespell.sh --skip $(CODESPELL_SKIP) --ignore-words .codespell.ignorewords --check-filenames --check-hidden -q2
+	@./hack/codespell.sh --skip "$(CODESPELL_SKIP)" --ignore-words .codespell.ignorewords --check-filenames --check-hidden -q2
 
 # Build manager binary, no additional checks or code generation
 build-operator:
@@ -123,7 +120,7 @@ deploy: manifests
 
 load-image: ## Load the operator image to a kind cluster
 load-image: container
-	./hack/load-image.sh $(IMAGE) $(VERSION)
+	./hack/load-image.sh "$(IMAGE)" "$(VERSION)"
 
 # Remove the operator deployment. This assumes a kubeconfig in ~/.kube/config
 undeploy:
@@ -143,18 +140,18 @@ test-example:
 verify-image: ## Verifies operator image references and pull policy.
 .PHONY: verify-image
 verify-image:
-	./hack/verify-image.sh $(NEW_VERSION)
+	./hack/verify-image.sh "$(NEW_VERSION)"
 
 reset-image: ## Resets operator image references and pull policy.
 .PHONY: reset-image
 reset-image:
-	./hack/reset-image.sh $(IMAGE) $(OLD_VERSION)
+	./hack/reset-image.sh "$(IMAGE)" "$(OLD_VERSION)"
 
 # Generate Contour's rendered CRD manifest (i.e. HTTPProxy).
 # Remove when https://github.com/projectcontour/contour-operator/issues/42 is fixed.
 .PHONY: generate-contour-crds
 generate-contour-crds:
-	@./hack/generate-contour-crds.sh $(NEW_VERSION)
+	@./hack/generate-contour-crds.sh "$(NEW_VERSION)"
 
 manifests: ## Generate manifests e.g. CRD, RBAC etc.
 manifests: generate-contour-crds
@@ -174,32 +171,32 @@ generate:
 	$(CONTROLLER_GEN) object:headerFile="hack/boilerplate.go.txt" paths="./..."
 
 multiarch-build-push: ## Build and push a multi-arch contour-operator container image to the Docker registry
-	$(CONTAINER_ENGINE) buildx build \
-		--platform $(IMAGE_PLATFORMS) \
+	"$(CONTAINER_ENGINE)" buildx build \
+		--platform "$(IMAGE_PLATFORMS)" \
 		--build-arg "BUILD_VERSION=$(BUILD_VERSION)" \
 		--build-arg "BUILD_BRANCH=$(BUILD_BRANCH)" \
 		--build-arg "BUILD_SHA=$(BUILD_SHA)" \
-		$(DOCKER_BUILD_LABELS) \
-		$(IMAGE_TAGS) \
+		"$(DOCKER_BUILD_LABELS)" \
+		"$(IMAGE_TAGS)" \
 		--push \
 		.
 
 container: ## Build the contour-operator container image
 container: test
-	$(CONTAINER_ENGINE) build \
+	"$(CONTAINER_ENGINE)" build \
 		--build-arg "BUILD_VERSION=$(BUILD_VERSION)" \
 		--build-arg "BUILD_BRANCH=$(BUILD_BRANCH)" \
 		--build-arg "BUILD_SHA=$(BUILD_SHA)" \
-		$(DOCKER_BUILD_LABELS) \
+		"$(DOCKER_BUILD_LABELS)" \
 		$(shell pwd) \
-		--tag $(IMAGE):$(VERSION)
+		--tag "$(IMAGE):$(VERSION)"
 
 push: ## Push the contour-operator container image to the Docker registry
 push: container
-	$(CONTAINER_ENGINE) push $(IMAGE):$(VERSION)
+	"$(CONTAINER_ENGINE)" push "$(IMAGE):$(VERSION)"
 ifeq ($(TAG_LATEST), true)
-	$(CONTAINER_ENGINE) tag $(IMAGE):$(VERSION) $(IMAGE):latest
-	$(CONTAINER_ENGINE) push $(IMAGE):latest
+	"$(CONTAINER_ENGINE)" tag "$(IMAGE):$(VERSION)" "$(IMAGE):latest"
+	"$(CONTAINER_ENGINE)" push "$(IMAGE):latest"
 endif
 
 local-cluster: # Create a local kind cluster
@@ -208,7 +205,7 @@ local-cluster: # Create a local kind cluster
 release: ## Prepares a tagged release of the operator.
 .PHONY: release
 release:
-	./hack/release/make-release-tag.sh $(OLD_VERSION) $(NEW_VERSION)
+	./hack/release/make-release-tag.sh "$(OLD_VERSION)" "$(NEW_VERSION)"
 
 test-e2e: ## Runs e2e tests.
 .PHONY: test-e2e
@@ -219,17 +216,17 @@ test-e2e: deploy
 .PHONY: bundle
 bundle: manifests
 	operator-sdk generate kustomize manifests -q
-	kustomize build config/manifests | operator-sdk generate bundle -q --overwrite --version $(SEMVER)
+	kustomize build config/manifests | operator-sdk generate bundle -q --overwrite --version "$(SEMVER)"
 	operator-sdk bundle validate ./bundle
 
 .PHONY: bundle-build
 bundle-build:
-	$(CONTAINER_ENGINE) build -t $(IMAGE)-bundle:$(VERSION) -f bundle.Dockerfile
+	"$(CONTAINER_ENGINE)" build -t "$(IMAGE)"-bundle:"$(VERSION)" -f bundle.Dockerfile
 
 .PHONY: bundle-push
 bundle-push:
-	$(CONTAINER_ENGINE) push $(IMAGE)-bundle:$(VERSION)
+	"$(CONTAINER_ENGINE)" push "$(IMAGE)"-bundle:"$(VERSION)"
   
 .PHONY: bundle-push-dev
 bundle-push-dev:
-	$(CONTAINER_ENGINE) push $(AUTH) $(IMAGE)-bundle:$(VERSION)
+	"$(CONTAINER_ENGINE)" push $(AUTH) "$(IMAGE)-bundle:$(VERSION)"

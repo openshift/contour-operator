@@ -12,16 +12,10 @@ spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
     owned:
-    - kind: BackendPolicy
-      name: backendpolicies.networking.x-k8s.io
-      version: v1alpha1
     - description: Contour is the Schema for the contours API.
       displayName: Contour
       kind: Contour
       name: contours.operator.projectcontour.io
-      version: v1alpha1
-    - kind: ExtensionService
-      name: extensionservices.projectcontour.io
       version: v1alpha1
     - kind: GatewayClass
       name: gatewayclasses.networking.x-k8s.io
@@ -35,17 +29,11 @@ spec:
     - kind: HTTPRoute
       name: httproutes.networking.x-k8s.io
       version: v1alpha1
-    - kind: TCPRoute
-      name: tcproutes.networking.x-k8s.io
-      version: v1alpha1
     - kind: TLSCertificateDelegation
       name: tlscertificatedelegations.projectcontour.io
       version: v1
     - kind: TLSRoute
       name: tlsroutes.networking.x-k8s.io
-      version: v1alpha1
-    - kind: UDPRoute
-      name: udproutes.networking.x-k8s.io
       version: v1alpha1
   description: Contour Operator provides a method for packaging, deploying, and managing
     Contour
@@ -57,17 +45,6 @@ spec:
     spec:
       clusterPermissions:
       - rules:
-        - apiGroups:
-          - ""
-          resources:
-          - configmaps
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - update
-          - watch
         - apiGroups:
           - ""
           resources:
@@ -83,6 +60,7 @@ spec:
           - secrets
           - serviceaccounts
           - services
+          - configmaps
           verbs:
           - create
           - delete
@@ -101,28 +79,7 @@ spec:
           - apps
           resources:
           - daemonsets
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - update
-          - watch
-        - apiGroups:
-          - apps
-          resources:
           - deployments
-          verbs:
-          - create
-          - delete
-          - get
-          - list
-          - update
-          - watch
-        - apiGroups:
-          - batch
-          resources:
-          - jobs
           verbs:
           - create
           - delete

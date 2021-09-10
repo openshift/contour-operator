@@ -72,7 +72,7 @@ download \
 
 tar -C "${DESTDIR}" -xf "${DESTDIR}/etcd.tgz" 
 rm "${DESTDIR}/etcd.tgz"
-sudo mv ${DESTDIR}/etcd-${ETCD_VERS}-${OS}-amd64/etcd /usr/local/bin/
+sudo mv "${DESTDIR}/etcd-${ETCD_VERS}-${OS}-amd64"/etcd /usr/local/bin/
 
 # kustomize
 download \
@@ -93,10 +93,10 @@ chmod +x "${DESTDIR}/kubebuilder"
 download \
     "https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK_VERSION}/operator-sdk_${OS}_${ARCH}" \
     "${DESTDIR}/operator-sdk_${OS}_${ARCH}"
-chmod +x ${DESTDIR}/operator-sdk_${OS}_${ARCH} && sudo mv ${DESTDIR}/operator-sdk_${OS}_${ARCH} /usr/local/bin/operator-sdk
+chmod +x "${DESTDIR}/operator-sdk_${OS}_${ARCH}" && sudo mv "${DESTDIR}/operator-sdk_${OS}_${ARCH}" /usr/local/bin/operator-sdk
 
 # setup env for kind
 sudo mkdir -p /usr/local/kubebuilder/bin
-sudo cp ${DESTDIR}/kube-apiserver /usr/local/kubebuilder/bin
-sudo cp ${DESTDIR}/etcd-${ETCD_VERS}-${OS}-amd64/etcd /usr/local/kubebuilder/bin
-sudo cp ${DESTDIR}/kubectl /usr/local/kubebuilder/bin
+sudo cp "${DESTDIR}/kube-apiserver" /usr/local/kubebuilder/bin
+sudo cp "${DESTDIR}/etcd-${ETCD_VERS}-${OS}-amd64/etcd" /usr/local/kubebuilder/bin
+sudo cp "${DESTDIR}/kubectl" /usr/local/kubebuilder/bin
