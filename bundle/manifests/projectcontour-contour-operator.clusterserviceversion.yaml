@@ -1,0 +1,308 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: '[]'
+    capabilities: Basic Install
+    operators.operatorframework.io/builder: operator-sdk-v1.8.0+git
+    operators.operatorframework.io/project_layout: go.kubebuilder.io/v2
+  name: contour-operator.v0.0.1
+  namespace: contour-operator
+spec:
+  apiservicedefinitions: {}
+  customresourcedefinitions:
+    owned:
+    - description: Contour is the Schema for the contours API.
+      displayName: Contour
+      kind: Contour
+      name: contours.operator.projectcontour.io
+      version: v1alpha1
+    - kind: GatewayClass
+      name: gatewayclasses.networking.x-k8s.io
+      version: v1alpha1
+    - kind: Gateway
+      name: gateways.networking.x-k8s.io
+      version: v1alpha1
+    - kind: HTTPProxy
+      name: httpproxies.projectcontour.io
+      version: v1
+    - kind: HTTPRoute
+      name: httproutes.networking.x-k8s.io
+      version: v1alpha1
+    - kind: TLSCertificateDelegation
+      name: tlscertificatedelegations.projectcontour.io
+      version: v1
+    - kind: TLSRoute
+      name: tlsroutes.networking.x-k8s.io
+      version: v1alpha1
+  description: Contour Operator provides a method for packaging, deploying, and managing
+    Contour
+  displayName: Contour Operator
+  icon:
+  - base64data: "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"
+    mediatype: "image/png"
+  install:
+    spec:
+      clusterPermissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - endpoints
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          - secrets
+          - serviceaccounts
+          - services
+          - configmaps
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - update
+          - watch
+        - apiGroups:
+          - apiextensions.k8s.io
+          resources:
+          - customresourcedefinitions
+          verbs:
+          - get
+          - list
+        - apiGroups:
+          - apps
+          resources:
+          - daemonsets
+          - deployments
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - update
+          - watch
+        - apiGroups:
+          - coordination.k8s.io
+          resources:
+          - leases
+          verbs:
+          - create
+          - get
+          - list
+          - update
+          - watch
+        - apiGroups:
+          - networking.k8s.io
+          resources:
+          - ingressclasses
+          - ingresses
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - networking.k8s.io
+          resources:
+          - ingresses/status
+          verbs:
+          - create
+          - get
+          - update
+        - apiGroups:
+          - networking.x-k8s.io
+          resources:
+          - backendpolicies
+          - gatewayclasses
+          - gateways
+          - httproutes
+          - tlsroutes
+          verbs:
+          - get
+          - list
+          - update
+          - watch
+        - apiGroups:
+          - networking.x-k8s.io
+          resources:
+          - backendpolicies/status
+          - gatewayclasses/status
+          - gateways/status
+          - httproutes/status
+          - tlsroutes/status
+          verbs:
+          - create
+          - get
+          - update
+        - apiGroups:
+          - networking.x-k8s.io
+          resources:
+          - tcproutes
+          - udproutes
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - networking.x-k8s.io
+          resources:
+          - tcproutes/status
+          - udproutes/status
+          verbs:
+          - update
+        - apiGroups:
+          - operator.projectcontour.io
+          resources:
+          - contours
+          verbs:
+          - get
+          - list
+          - update
+          - watch
+        - apiGroups:
+          - operator.projectcontour.io
+          resources:
+          - contours/status
+          verbs:
+          - get
+          - patch
+          - update
+        - apiGroups:
+          - projectcontour.io
+          resources:
+          - extensionservices
+          - httpproxies
+          - tlscertificatedelegations
+          verbs:
+          - get
+          - list
+          - watch
+        - apiGroups:
+          - projectcontour.io
+          resources:
+          - extensionservices/status
+          - httpproxies/status
+          verbs:
+          - create
+          - get
+          - update
+        - apiGroups:
+          - rbac.authorization.k8s.io
+          resources:
+          - clusterrolebindings
+          - clusterroles
+          - rolebindings
+          - roles
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - update
+          - watch
+        - apiGroups:
+          - authentication.k8s.io
+          resources:
+          - tokenreviews
+          verbs:
+          - create
+        - apiGroups:
+          - authorization.k8s.io
+          resources:
+          - subjectaccessreviews
+          verbs:
+          - create
+        serviceAccountName: default
+      deployments:
+      - name: contour-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              control-plane: contour-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                control-plane: contour-operator
+            spec:
+              containers:
+              - args:
+                - --secure-listen-address=0.0.0.0:8443
+                - --upstream=http://127.0.0.1:8080/
+                - --logtostderr=true
+                - --v=10
+                image: gcr.io/kubebuilder/kube-rbac-proxy:v0.8.0
+                name: kube-rbac-proxy
+                ports:
+                - containerPort: 8443
+                  name: https
+                resources: {}
+              - args:
+                - --metrics-addr=127.0.0.1:8080
+                - --enable-leader-election
+                command:
+                - /contour-operator
+                image: docker.io/projectcontour/contour-operator:main
+                imagePullPolicy: Always
+                name: contour-operator
+                resources:
+                  requests:
+                    cpu: 100m
+                    memory: 70Mi
+              terminationGracePeriodSeconds: 10
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - patch
+          - delete
+        - apiGroups:
+          - ""
+          resources:
+          - configmaps/status
+          verbs:
+          - get
+          - update
+          - patch
+        - apiGroups:
+          - ""
+          resources:
+          - events
+          verbs:
+          - create
+        serviceAccountName: default
+    strategy: deployment
+  installModes:
+  - supported: false
+    type: OwnNamespace
+  - supported: false
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - contour
+  - contour-operator
+  - projectcontour
+  links:
+  - name: Contour Operator
+    url: https://github.com/openshift/contour-operator 
+  maturity: alpha
+  provider:
+    name: Red Hat, Inc.
+  version: 0.0.1
