@@ -1,0 +1,12 @@
+# This patch updates the operator image to use images built for PRs and other testing images.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contour-operator
+  namespace: system
+spec:
+  template:
+    spec:
+      containers:
+      - name: contour-operator
+        image: docker.io/projectcontour/contour-operator:main
