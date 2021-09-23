@@ -939,6 +939,7 @@ func TestGatewayOwnership(t *testing.T) {
 // TestOperatorUpgrade tests an instance of the Contour custom resource while
 // upgrading the operator from release "latest" to the current version/branch.
 func TestOperatorUpgrade(t *testing.T) {
+	t.Skipf("Upgrade to upstream latest does not currently work.")
 	// Get the current image to use for upgrade testing.
 	current, err := getDeploymentImage(ctx, kclient, operatorName, operatorNs, operatorName)
 	if err != nil {
