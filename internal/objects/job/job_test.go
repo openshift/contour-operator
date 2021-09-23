@@ -17,7 +17,11 @@ import (
 	"fmt"
 	"testing"
 
+	apiequality "k8s.io/apimachinery/pkg/api/equality"
+	"k8s.io/utils/pointer"
+
 	operatorv1alpha1 "github.com/projectcontour/contour-operator/api/v1alpha1"
+	"github.com/projectcontour/contour-operator/internal/objects"
 	objcontour "github.com/projectcontour/contour-operator/internal/objects/contour"
 	operatorconfig "github.com/projectcontour/contour-operator/internal/operator/config"
 
@@ -71,4 +75,47 @@ func TestDesiredJob(t *testing.T) {
 	container := checkJobHasContainer(t, job, jobContainerName)
 	checkContainerHasImage(t, container, operatorconfig.DefaultContourImage)
 	checkJobHasEnvVar(t, job, jobNsEnvVar)
+}
+
+func checkJobSecurityContext(t *testing.T, job *batchv1.Job, expected *corev1.PodSecurityContext) {
+	t.Helper()
+	if apiequality.Semantic.DeepEqual(job.Spec.Template.Spec.SecurityContext, expected) {
+		return
+	}
+	t.Errorf("deployment has unexpected security context %#v instead of %#v", job.Spec.Template.Spec.SecurityContext, expected)
+}
+
+func TestSecurityContextJob(t *testing.T) {
+
+	name := "security-context-test"
+	sc := &corev1.PodSecurityContext{
+		RunAsUser: pointer.Int64(int64(0)),
+	}
+	cfg := objcontour.Config{
+		Name:        name,
+		Namespace:   fmt.Sprintf("%s-ns", name),
+		SpecNs:      "projectcontour",
+		RemoveNs:    false,
+		NetworkType: operatorv1alpha1.LoadBalancerServicePublishingType,
+	}
+	cntr := objcontour.New(cfg)
+	cntr.Spec.ContourSecurityContext = sc
+
+	job := DesiredJob(cntr, "test-image")
+	checkJobSecurityContext(t, job, sc)
+}
+
+func TestDefaultSecurityContextJob(t *testing.T) {
+	name := "security-context-test"
+	cfg := objcontour.Config{
+		Name:        name,
+		Namespace:   fmt.Sprintf("%s-ns", name),
+		SpecNs:      "projectcontour",
+		RemoveNs:    false,
+		NetworkType: operatorv1alpha1.LoadBalancerServicePublishingType,
+	}
+	cntr := objcontour.New(cfg)
+
+	job := DesiredJob(cntr, "test-image")
+	checkJobSecurityContext(t, job, objects.NewUnprivilegedPodSecurity())
 }
