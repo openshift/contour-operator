@@ -139,6 +139,11 @@ func DesiredJob(contour *operatorv1alpha1.Contour, image string) *batchv1.Job {
 		SchedulerName:                 "default-scheduler",
 		TerminationGracePeriodSeconds: pointer.Int64Ptr(int64(30)),
 	}
+
+	if contour.ContourSecurityContextExists() {
+		spec.SecurityContext = contour.Spec.ContourSecurityContext
+	}
+
 	// TODO [danehans] certgen needs to be updated to match these labels.
 	// See https://github.com/projectcontour/contour/issues/1821 for details.
 	labels := map[string]string{
